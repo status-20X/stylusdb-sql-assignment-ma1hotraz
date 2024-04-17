@@ -3,7 +3,7 @@ const readCSV = require("./csvReader");
 
 async function executeSELECTQuery(query) {
   try {
-    const { fields, table } = parseQuery(query);
+    const { fields, table, whereClause } = parseQuery(query);
     const data = await readCSV(`${table}.csv`);
 
     if (!data) {

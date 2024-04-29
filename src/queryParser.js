@@ -22,7 +22,8 @@ function parseQuery(queryString) {
 }
 
 function parseWhereClause(whereString) {
-  const conditionRegex = /\s*(\w+)\s*(=|>|<)\s*('(?:[^'\\]|\\.)*'|[^\s]+)/gi;
+  const conditionRegex =
+    /\s*(\w+)\s*(=|!=|>|<|>=|<=)\s*('(?:[^'\\]|\\.)*'|[^\s]+)/gi;
   const whereClauses = [];
   let match;
 
@@ -37,6 +38,7 @@ function parseWhereClause(whereString) {
 
   return whereClauses;
 }
+
 
 
 

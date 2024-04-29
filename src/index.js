@@ -1,6 +1,28 @@
 const parseQuery = require("./queryParser");
 const readCSV = require("./csvReader");
 
+function evaluateCondition(row, clause) {
+  const { field, operator, value } = clause;
+  const rowValue = row[field];
+
+  switch (operator) {
+    case "=":
+      return rowValue === value;
+    case "!=":
+      return rowValue !== value;
+    case ">":
+      return rowValue > value;
+    case "<":
+      return rowValue < value;
+    case ">=":
+      return rowValue >= value;
+    case "<=":
+      return rowValue <= value;
+    default:
+      throw new Error(`Unsupported operator: ${operator}`);
+  }
+}
+
 async function executeSELECTQuery(query) {
   try {
     const { fields, table, whereClauses } = parseQuery(query);
@@ -13,9 +35,7 @@ async function executeSELECTQuery(query) {
     const filteredData =
       whereClauses.length > 0
         ? data.filter((row) =>
-            whereClauses.every((clause) => {
-              return row[clause.field] === clause.value;
-            })
+            whereClauses.every((clause) => evaluateCondition(row, clause))
           )
         : data;
 
@@ -35,10 +55,9 @@ async function executeSELECTQuery(query) {
     return selectedData;
   } catch (error) {
     return Promise.reject(
-      new Error("Error executing SELECT query: Invalid where clause format")
+      new Error(`Error executing SELECT query: ${error.message}`)
     );
   }
 }
-
 
 module.exports = executeSELECTQuery;

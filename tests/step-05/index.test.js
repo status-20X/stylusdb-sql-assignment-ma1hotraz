@@ -16,7 +16,7 @@ test("Parse SQL Query", () => {
   expect(parsed).toEqual({
     fields: ["id", "name"],
     table: "student",
-    whereClause: null,
+    whereClauses: [],
   });
 });
 
@@ -36,17 +36,17 @@ test("Parse SQL Query with WHERE Clause", () => {
   expect(parsed).toEqual({
     fields: ["id", "name"],
     table: "student",
-    whereClause: "age = 25",
+    whereClauses: [{ field: "age", operator: "=", value: "25" }],
   });
 });
 
 test("Execute SQL Query with WHERE Clause", async () => {
   const query = "SELECT id, name FROM student WHERE age = 25";
   const result = await executeSELECTQuery(query);
-  expect(result.length).toBe(4);
+  expect(result.length).toBe(1);
   expect(result[0]).toHaveProperty("id");
   expect(result[0]).toHaveProperty("name");
-  expect(result[0].id).toBe("1");
+  expect(result[0].id).toBe("2");
 });
 
 test("Parse SQL Query with Case Insensitivity", () => {
@@ -55,15 +55,15 @@ test("Parse SQL Query with Case Insensitivity", () => {
   expect(parsed).toEqual({
     fields: ["id", "name"],
     table: "student",
-    whereClause: null,
+    whereClauses: [],
   });
 });
 
 test("Execute SQL Query with Case Insensitivity", async () => {
   const query = "select id, name from student where age = 25";
   const result = await executeSELECTQuery(query);
-  expect(result.length).toBe(4);
+  expect(result.length).toBe(1);
   expect(result[0]).toHaveProperty("id");
   expect(result[0]).toHaveProperty("name");
-  expect(result[0].id).toBe("1");
+  expect(result[0].id).toBe("2");
 });

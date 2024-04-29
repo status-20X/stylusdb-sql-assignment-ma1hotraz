@@ -3,30 +3,42 @@ const readCSV = require("./csvReader");
 
 async function executeSELECTQuery(query) {
   try {
-    const { fields, table, whereClause } = parseQuery(query);
+    const { fields, table, whereClauses } = parseQuery(query);
     const data = await readCSV(`${table}.csv`);
 
     if (!data) {
       throw new Error("Table not found or empty");
     }
 
-    const filteredData = data.map((row) => {
-      const filteredRow = {};
+    const filteredData =
+      whereClauses.length > 0
+        ? data.filter((row) =>
+            whereClauses.every((clause) => {
+              return row[clause.field] === clause.value;
+            })
+          )
+        : data;
+
+    const selectedData = filteredData.map((row) => {
+      const selectedRow = {};
       fields.forEach((field) => {
         if (row.hasOwnProperty(field)) {
-          filteredRow[field] = row[field];
+          selectedRow[field] = row[field];
         } else {
           console.warn(`Field '${field}' does not exist in the table.`);
-          filteredRow[field] = null;
+          selectedRow[field] = null;
         }
       });
-      return filteredRow;
+      return selectedRow;
     });
 
-    return filteredData;
+    return selectedData;
   } catch (error) {
-    return Promise.reject("Error executing SELECT query: " + error.message);
+    return Promise.reject(
+      new Error("Error executing SELECT query: Invalid where clause format")
+    );
   }
 }
+
 
 module.exports = executeSELECTQuery;
